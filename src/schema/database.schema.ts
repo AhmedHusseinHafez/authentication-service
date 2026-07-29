@@ -9,6 +9,9 @@ export const dbConfigSchema = z.object({
     DB_NAME: z.string().min(1, 'DB_NAME is required'),
     DB_TYPE: z.string().min(1, 'DB_TYPE is required'),
     SYNCHRONIZE: z.boolean().default(false),
-});
+}).transform((data) => ({
+    ...data,
+    SYNCHRONIZE: data.NODE_ENV === 'development',
+}));
 
 export type DbEnv = z.infer<typeof dbConfigSchema>;

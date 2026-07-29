@@ -1,22 +1,20 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigType } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
 import dbConfig from '../config/db.config';
 
 @Module({
     imports: [
         TypeOrmModule.forRootAsync({
-            imports: [ConfigModule.forFeature(dbConfig)],
             inject: [dbConfig.KEY],
             useFactory: (config: ConfigType<typeof dbConfig>) => ({
-                type: config.type as any,
-                host: config.host,
-                port: config.port,
-                username: config.username,
-                password: config.password,
-                database: config.database,
-                logging: config.NODE_ENV === 'development',
-                synchronize: config.synchronize,
+                type: config.DB_TYPE as any,
+                host: config.DB_HOST,
+                port: config.DB_PORT,
+                username: config.DB_USERNAME,
+                password: config.DB_PASSWORD,
+                database: config.DB_NAME,
+                synchronize: config.SYNCHRONIZE,
                 entities: [__dirname + '/../**/*.entity{.ts,.js}'],
             }),
         }),

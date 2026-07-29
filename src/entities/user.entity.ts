@@ -1,13 +1,54 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, DeleteDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import * as bcrypt from 'bcrypt';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number = 0;
+  @PrimaryGeneratedColumn('uuid')
+  id!: number;
 
   @Column()
-  name: string = '';
+  name!: string;
 
-  @Column()
-  email: string = '';
+  @Column({ unique: true ,transformer: {
+    to: (value: string) => value.toLowerCase(),
+    from: (value: string) => value.toLowerCase(),
+  }})
+  @Index() //for faster lookup
+  email!: string;
+
+
+  @Column({ default: false })
+  isEmailVerified!: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: ['super_admin', 'admin', 'user', 'moderator'],
+    default: 'user',
+  })
+  role!: string;
+
+  @Column({ default: false })
+  isActive!: boolean;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metadata!: Record<string, any>;
+
+  @Column({ select: false })
+  password!: string;
+
+
+  @CreateDateColumn()
+  createdAt?: Date;
+
+  @UpdateDateColumn()
+  updatedAt?: Date;
+
+  @DeleteDateColumn() // soft delete
+  deletedAt?: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 }

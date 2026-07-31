@@ -16,7 +16,9 @@ import { ConfigModule } from '@nestjs/config';
                 username: config.get('DB_USERNAME'),
                 password: config.get('DB_PASSWORD'),
                 database: config.get('DB_NAME'),
-                entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+                // Automatically load all entities registered via TypeOrmModule.forFeature()
+                autoLoadEntities: true,
+                // entities: [__dirname + '/../**/*.entity{.ts,.js}'],
                 synchronize: config.get('NODE_ENV') !== 'prod',
                 // logging: config.get('NODE_ENV') !== 'prod',
             }),

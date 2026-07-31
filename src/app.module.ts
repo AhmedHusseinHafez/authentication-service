@@ -4,6 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import dbConfig from './config/db.config';
 import { DbModule } from './db/db.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -12,6 +15,9 @@ import { DbModule } from './db/db.module';
       load: [dbConfig],
     }),
     DbModule,
+    AuthModule,
+    UsersModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

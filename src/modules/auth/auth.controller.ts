@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus, Get, Query } from '@nestjs/common';
 
 import { AuthGuard } from '@nestjs/passport';
 
@@ -9,6 +9,7 @@ import { UsersService } from '../users/users.service';
 
 import { AuthService } from './auth.service';
 import type { AuthUser } from './auth.service';
+import { RefreshTokensService } from './refresh-tokens.service';
 
 
 
@@ -16,7 +17,9 @@ import type { AuthUser } from './auth.service';
 export class AuthController {
 
   constructor(
-    private readonly usersService: UsersService, private readonly authService: AuthService) { }
+    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
+    private readonly refreshTokensService: RefreshTokensService) { }
 
   @Post('register')
   create(@Body() createAuthDto: CreateAuthDto) {
@@ -35,5 +38,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refresh(refreshTokenDto.refreshToken);
+  }
+
+  @Get('sessions')
+  @UseGuards(AuthGuard('jwt'))
+  fetchAllSessions(@Request() req: { user: AuthUser },
+   @Query('page') page: number = 0,
+   @Query('limit') limit: number = 10
+  ) {
+    return this.refreshTokensService.fetchAllSessions(req.user.id, { skip: page, take: limit });
   }
 }

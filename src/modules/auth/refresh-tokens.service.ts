@@ -8,7 +8,7 @@ export class RefreshTokensService {
   constructor(
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
-  ) {}
+  ) { }
 
   async create(userId: string, hashedToken: string, expiresAt: Date) {
     const refreshToken = this.refreshTokenRepo.create({
@@ -33,5 +33,13 @@ export class RefreshTokensService {
 
   async revoke(id: string): Promise<void> {
     await this.refreshTokenRepo.update(id, { revokedAt: new Date() });
+  }
+
+  async fetchAllSessions(userId: string, { skip, take }:
+    { skip: number, take: number }): Promise<{ data: RefreshToken[], total: number, page: number, limit: number }> {
+
+    const data = await this.refreshTokenRepo.findAndCount({ where: { user: { id: userId } }, skip, take });
+    return { data: data[0], total: data[1], page: skip, limit: take };
+
   }
 }

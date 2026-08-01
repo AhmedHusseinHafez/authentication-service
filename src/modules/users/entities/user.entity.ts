@@ -1,6 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, DeleteDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, DeleteDateColumn, Entity, Index, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { RoleEnum } from "../../../common/enum/role.enum";
+import { RefreshToken } from "../../auth/entities/refresh-token.entity";
 
 @Entity('users')
 export class User {
@@ -10,10 +11,12 @@ export class User {
   @Column()
   name!: string;
 
-  @Column({ unique: true ,transformer: {
-    to: (value: string) => value.toLowerCase(),
-    from: (value: string) => value.toLowerCase(),
-  }})
+  @Column({
+    unique: true, transformer: {
+      to: (value: string) => value.toLowerCase(),
+      from: (value: string) => value.toLowerCase(),
+    }
+  })
   @Index() //for faster lookup
   email!: string;
 
@@ -37,6 +40,11 @@ export class User {
   @Column({ select: false })
   password!: string;
 
+  // @Column({ type: 'varchar', nullable: true, select: false })
+  // hashedRefreshToken?: string | null;
+
+  @OneToMany(() => RefreshToken, (token) => token.user)
+  refreshTokens!: RefreshToken[];
 
   @CreateDateColumn()
   createdAt?: Date;

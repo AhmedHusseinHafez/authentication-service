@@ -14,7 +14,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string) {
+  override async validate(email: string, password: string) {
     if (!email || !isEmail(email)) {
       throw new BadRequestException('Invalid email');
     }

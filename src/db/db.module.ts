@@ -18,8 +18,9 @@ import { ConfigModule } from '@nestjs/config';
                 database: config.get('DB_NAME'),
                 // Automatically load all entities registered via TypeOrmModule.forFeature()
                 autoLoadEntities: true,
+                migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
                 // entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-                synchronize: config.get('NODE_ENV') !== 'prod',
+                synchronize: false,
                 // logging: config.get('NODE_ENV') !== 'prod',
             }),
         }),

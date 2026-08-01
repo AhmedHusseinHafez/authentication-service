@@ -26,9 +26,9 @@ export class UsersService {
     });
 
     const createdUser = await repo.save(user);
-    
+
     return await this.findOne(createdUser.id);
-   }
+  }
 
 
   async findAll(): Promise<User[]> {

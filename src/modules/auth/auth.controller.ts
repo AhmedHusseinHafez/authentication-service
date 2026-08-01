@@ -3,11 +3,12 @@ import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus } from
 import { AuthGuard } from '@nestjs/passport';
 
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 import { UsersService } from '../users/users.service';
 
-
-import { User } from '../users/entities/user.entity';
+import { AuthService } from './auth.service';
+import type { AuthUser } from './auth.service';
 
 
 
@@ -15,7 +16,7 @@ import { User } from '../users/entities/user.entity';
 export class AuthController {
 
   constructor(
-    private readonly usersService: UsersService) { }
+    private readonly usersService: UsersService, private readonly authService: AuthService) { }
 
   @Post('register')
   create(@Body() createAuthDto: CreateAuthDto) {
@@ -26,7 +27,13 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('local'))
-  login(@Request() req: { user: Omit<User, 'password'> }) {
-    return req.user;
+  login(@Request() req: { user: AuthUser }) {
+    return this.authService.login(req.user);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refresh(refreshTokenDto.refreshToken);
   }
 }

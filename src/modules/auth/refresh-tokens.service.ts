@@ -55,12 +55,27 @@ export class RefreshTokensService {
     };
   }
 
+  async logout(userId: string, hashedToken: string): Promise<{ success: boolean, message: string }> {
+    const revoking = await this.refreshTokenRepo.update({ user: { id: userId }, hashedToken: hashedToken }, { revokedAt: new Date() });
+    if (revoking.affected === 0) {
+      throw new NotFoundException('Session not found');
+    }
+    return revoking.affected ? {
+      success: true,
+      message: 'Session revoked successfully',
+    } : {
+      success: false,
+      message: 'Session not found',
+    };
+  }
+
   async fetchAllSessions(
     userId: string,
     pagination: PaginationQueryDto,
   ): Promise<PaginatedResponse<RefreshToken>> {
     return paginate(this.refreshTokenRepo, pagination, {
       where: { user: { id: userId } },
+      order: { expiresAt: 'DESC' },
     });
   }
 }

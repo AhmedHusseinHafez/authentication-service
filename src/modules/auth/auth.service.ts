@@ -29,7 +29,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly envConfigService: EnvConfigService,
     private readonly refreshTokensService: RefreshTokensService,
-  ) {}
+  ) { }
 
   async login(user: AuthUser) {
     return this.issueTokens(user);
@@ -46,7 +46,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const hashedToken = this.hashRefreshToken(refreshToken);
+    const hashedToken = await this.hashRefreshToken(refreshToken);
     const storedToken =
       await this.refreshTokensService.findValidByHashedToken(hashedToken);
 
@@ -57,7 +57,7 @@ export class AuthService {
     await this.refreshTokensService.revoke(storedToken.id);
 
     const { password: _, ...userWithoutSecrets } = storedToken.user;
-    
+
     return this.issueTokens(userWithoutSecrets);
   }
 
@@ -74,7 +74,7 @@ export class AuthService {
     return result;
   }
 
-  private hashRefreshToken(token: string): string {
+  async hashRefreshToken(token: string): Promise<string> {
     return createHash('sha256').update(token).digest('hex');
   }
 
@@ -102,7 +102,7 @@ export class AuthService {
 
     await this.refreshTokensService.create(
       user.id,
-      this.hashRefreshToken(refreshToken),
+      await this.hashRefreshToken(refreshToken),
       new Date(Date.now() + ms(refreshTokenExp)),
     );
 

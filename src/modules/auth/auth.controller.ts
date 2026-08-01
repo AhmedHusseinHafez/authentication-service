@@ -57,4 +57,12 @@ export class AuthController {
   revokeAllSessions(@Request() req: { user: AuthUser }) {
     return this.refreshTokensService.revokeAllSessions(req.user.id);
   }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('jwt'))
+  async logout(@Request() req: { user: AuthUser }, @Body() body: { refreshToken: string }) {
+    const hashedToken = await this.authService.hashRefreshToken(body.refreshToken);
+    return this.refreshTokensService.logout(req.user.id, hashedToken);
+  }
 }

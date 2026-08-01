@@ -12,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import type { AuthUser } from './auth.service';
 import { RefreshTokensService } from './refresh-tokens.service';
+import { LogoutDto } from './dto/logout.dto';
 
 
 
@@ -61,8 +62,8 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt'))
-  async logout(@Request() req: { user: AuthUser }, @Body() body: { refreshToken: string }) {
-    const hashedToken = await this.authService.hashRefreshToken(body.refreshToken);
+  async logout(@Request() req: { user: AuthUser }, @Body() logoutDto: LogoutDto) {
+    const hashedToken = await this.authService.hashRefreshToken(logoutDto.refreshToken);
     return this.refreshTokensService.logout(req.user.id, hashedToken);
   }
 }

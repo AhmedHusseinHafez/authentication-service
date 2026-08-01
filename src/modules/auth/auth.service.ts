@@ -1,39 +1,23 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  async create() {
-    return `This action creates a new auth`;
-  }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  constructor(
+    private readonly usersService: UsersService) { }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
-
-  async validateUser(email: string, password: string): Promise<any> {
-    const user = {
-      id: 1,
-      email: 'test@test.com',
-      role: 'user',
-    };
+  async validateUser(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException();
+      return null;
     }
-    return user;
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return null;
+    }
+    const { password: _, ...result } = user;
+    return result;
   }
 }

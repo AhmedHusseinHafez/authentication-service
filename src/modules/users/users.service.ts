@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +16,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const repo = this.userRepo;
-    const existingUser = await repo.findOne({ where: { email: createUserDto.email } });
+    const existingUser = await this.findByEmail(createUserDto.email);
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
@@ -24,16 +24,31 @@ export class UsersService {
       ...createUserDto,
       role: RoleEnum.USER,
     });
-    return repo.save(user);
+
+    const createdUser = await repo.save(user);
+    
+    return await this.findOne(createdUser.id);
+   }
+
+
+  async findAll(): Promise<User[]> {
+    return await this.userRepo.find();
   }
 
-
-  findAll() {
-    return `This action returns all users`;
+  async findOne(id: string): Promise<User | null> {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email })
+      .getOne();
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

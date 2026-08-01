@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -39,6 +39,20 @@ export class RefreshTokensService {
 
   async revoke(id: string): Promise<void> {
     await this.refreshTokenRepo.update(id, { revokedAt: new Date() });
+  }
+
+  async revokeAllSessions(userId: string): Promise<{ success: boolean, message: string }> {
+    const revoking = await this.refreshTokenRepo.update({ user: { id: userId } }, { revokedAt: new Date() });
+    if (revoking.affected === 0) {
+      throw new NotFoundException('No sessions found');
+    }
+    return revoking.affected ? {
+      success: true,
+      message: 'All sessions revoked successfully',
+    } : {
+      success: false,
+      message: 'No sessions found',
+    };
   }
 
   async fetchAllSessions(

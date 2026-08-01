@@ -50,4 +50,11 @@ export class AuthController {
   ) {
     return this.refreshTokensService.fetchAllSessions(req.user.id, pagination);
   }
+
+  @Post('sessions/revoke-all')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('jwt'))
+  revokeAllSessions(@Request() req: { user: AuthUser }) {
+    return this.refreshTokensService.revokeAllSessions(req.user.id);
+  }
 }

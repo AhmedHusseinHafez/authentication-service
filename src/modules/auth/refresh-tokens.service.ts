@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import {
+  PaginatedResponse,
+  PaginationQueryDto,
+  paginate,
+} from '../../common/pagination';
 import { RefreshToken } from './entities/refresh-token.entity';
 
 @Injectable()
@@ -35,11 +41,12 @@ export class RefreshTokensService {
     await this.refreshTokenRepo.update(id, { revokedAt: new Date() });
   }
 
-  async fetchAllSessions(userId: string, { skip, take }:
-    { skip: number, take: number }): Promise<{ data: RefreshToken[], total: number, page: number, limit: number }> {
-
-    const data = await this.refreshTokenRepo.findAndCount({ where: { user: { id: userId } }, skip, take });
-    return { data: data[0], total: data[1], page: skip, limit: take };
-
+  async fetchAllSessions(
+    userId: string,
+    pagination: PaginationQueryDto,
+  ): Promise<PaginatedResponse<RefreshToken>> {
+    return paginate(this.refreshTokenRepo, pagination, {
+      where: { user: { id: userId } },
+    });
   }
 }

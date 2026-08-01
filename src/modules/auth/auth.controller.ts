@@ -1,5 +1,7 @@
 import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus, Get, Query } from '@nestjs/common';
 
+import { PaginationQueryDto } from '../../common/pagination';
+
 import { AuthGuard } from '@nestjs/passport';
 
 import { CreateAuthDto } from './dto/create-auth.dto';
@@ -42,10 +44,10 @@ export class AuthController {
 
   @Get('sessions')
   @UseGuards(AuthGuard('jwt'))
-  fetchAllSessions(@Request() req: { user: AuthUser },
-   @Query('page') page: number = 0,
-   @Query('limit') limit: number = 10
+  fetchAllSessions(
+    @Request() req: { user: AuthUser },
+    @Query() pagination: PaginationQueryDto,
   ) {
-    return this.refreshTokensService.fetchAllSessions(req.user.id, { skip: page, take: limit });
+    return this.refreshTokensService.fetchAllSessions(req.user.id, pagination);
   }
 }

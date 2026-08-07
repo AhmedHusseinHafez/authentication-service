@@ -6,6 +6,7 @@ import { DbModule } from './db/db.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { HealthModule } from './modules/health/health.module';
 import { EnvConfigService, validateEnv } from './config/env.config';
 
 @Module({
@@ -19,6 +20,7 @@ import { EnvConfigService, validateEnv } from './config/env.config';
     AuthModule,
     UsersModule,
     TasksModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService, EnvConfigService],

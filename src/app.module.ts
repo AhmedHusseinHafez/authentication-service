@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { DbModule } from './db/db.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -44,9 +42,7 @@ const DEFAULT_THROTTLE_LIMIT = 100;
     TasksModule,
     HealthModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     EnvConfigService,
     {
       provide: APP_GUARD,

@@ -1,8 +1,8 @@
 import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus, Get, Query } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { AuthGuard } from '@nestjs/passport';
 
 import { PaginationQueryDto } from '../../common/pagination';
-
-import { AuthGuard } from '@nestjs/passport';
 
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -15,7 +15,8 @@ import { RefreshTokensService } from './refresh-tokens.service';
 import { LogoutDto } from './dto/logout.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-
+/** Stricter limit for credential endpoints (brute-force mitigation). */
+const AUTH_THROTTLE = { default: { limit: 5, ttl: 60_000 } };
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,7 @@ export class AuthController {
     private readonly refreshTokensService: RefreshTokensService) { }
 
   @Post('register')
+  @Throttle(AUTH_THROTTLE)
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.usersService.create(createAuthDto);
 
@@ -33,6 +35,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle(AUTH_THROTTLE)
   @UseGuards(AuthGuard('local'))
   login(@Request() req: { user: AuthUser }) {
     return this.authService.login(req.user);

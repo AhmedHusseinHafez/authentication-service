@@ -143,7 +143,7 @@ export function validateEnv(config: Record<string, unknown>): Env {
 
     if (!data.THROTTLE_TTL || !data.THROTTLE_LIMIT) {
         logger.warn(
-            'THROTTLE_TTL / THROTTLE_LIMIT are not set — rate limiting will be disabled.',
+            'THROTTLE_TTL / THROTTLE_LIMIT are not set — using default global rate limits (100 req / 60s).',
         );
     }
 

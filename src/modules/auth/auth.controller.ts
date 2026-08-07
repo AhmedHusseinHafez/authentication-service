@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import type { AuthUser } from './auth.service';
 import { RefreshTokensService } from './refresh-tokens.service';
 import { LogoutDto } from './dto/logout.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 
 
@@ -44,7 +45,7 @@ export class AuthController {
   }
 
   @Get('sessions')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   fetchAllSessions(
     @Request() req: { user: AuthUser },
     @Query() pagination: PaginationQueryDto,
@@ -54,14 +55,14 @@ export class AuthController {
 
   @Post('sessions/revoke-all')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   revokeAllSessions(@Request() req: { user: AuthUser }) {
     return this.refreshTokensService.revokeAllSessions(req.user.id);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   async logout(@Request() req: { user: AuthUser }, @Body() logoutDto: LogoutDto) {
     const hashedToken = await this.authService.hashRefreshToken(logoutDto.refreshToken);
     return this.refreshTokensService.logout(req.user.id, hashedToken);
